@@ -1,0 +1,42 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# VS Code settings
+.vscode/
+
+# macOS files
+.DS_Store
+
+# Logs and databases
+*.log
+
+# Sound files cache or temporary files (if any)
+*.wav
+*.mp3
+*.ogg
+
+# PyInstaller
+*.spec
+build/
+
+# Testing / coverage
+.coverage
+*.cover
+htmlcov/
+*.pytest_cache
+
+# Others
+*.bak
+*.tmp
