@@ -3,7 +3,11 @@
 TARC-U is a Python Tkinter application that simulates a procedural, "brain rot" time anomaly remediation game/UI.  
 The app features a command shell, multiple interactive modules, and a persistent sidebar with commands and session logs. It blends themes with procedural scenario generation for engaging gameplay.
 
+---
+
 <img width="1920" height="1080" alt="ss-upload-1" src="https://github.com/user-attachments/assets/9d0f9b49-92f9-4486-8362-f082911d1709" />
+
+---
 
 <img width="1920" height="1080" alt="ss-upload-2" src="https://github.com/user-attachments/assets/0ed3223c-da32-4148-bca8-69df28412132" />
 
