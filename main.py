@@ -64,6 +64,11 @@ def launch_main_app():
     # Create and start the main TARC-U application in fullscreen.
     
     app = TARC_U_Core()
+
+    app.deiconify()           # make sure window is not minimized
+    app.lift()                # raise window above others
+    app.focus_force()         # force focus onto this window
+
     app.attributes("-fullscreen", True)
    
     app.bind("<Escape>", lambda e: app.attributes("-fullscreen", False))
@@ -73,7 +78,7 @@ def launch_main_app():
 def main():
     # Boot window setup
     boot_root = tk.Tk()
-    boot_root.overrideredirect(True)  # No decorations
+    boot_root.overrideredirect(True)
     width, height = 800, 600
     screen_width = boot_root.winfo_screenwidth()
     screen_height = boot_root.winfo_screenheight()
@@ -82,22 +87,28 @@ def main():
     boot_root.geometry(f"{width}x{height}+{x}+{y}")
     boot_root.config(bg=CONSOLE_BG)
     boot_root.attributes("-topmost", True)
-    boot_root.wm_attributes("-alpha", 1.0)  # Fully opaque
+    boot_root.wm_attributes("-alpha", 1.0)
 
-    boot_canvas = tk.Canvas(boot_root, width=width, height=height,
-                           bg=CONSOLE_BG, highlightthickness=0)
+    boot_canvas = tk.Canvas(boot_root, width=width, height=height, bg=CONSOLE_BG, highlightthickness=0)
     boot_canvas.pack(expand=True, fill='both')
 
-    # Wait for the canvas to be ready before creating text item
     boot_root.update_idletasks()
 
-    # Create the text item to be updated by run_boot_sequence
+    boot_root.lift()
+    boot_root.focus_force()
+
+    w = boot_canvas.winfo_width()
+
+    # Move TARC-U text further down to y=90 or 100 to prevent clipping
+    boot_canvas.create_text(w / 2, 100, text="TARC-U", font=TITLE_FONT, fill=ACCENT_COLOR, justify=tk.CENTER)
+    boot_canvas.create_text(w / 2, 150, text="Temporal Anomaly Remediation & Corruption Unit", font=SHELL_FONT, fill=WARNING_COLOR, justify=tk.CENTER)
+    boot_canvas.create_text(w / 2, 200, text="v1.0.0 BETA", font=SHELL_FONT, fill=CONSOLE_FG, justify=tk.CENTER)
+
     boot_text_id = boot_canvas.create_text(
-        50, 200, anchor="nw", text="", font=SHELL_FONT,
-        fill=CONSOLE_FG, width=width - 100
+        50, 250, anchor="nw", text="", font=SHELL_FONT,
+        fill=CONSOLE_FG, width=w - 100
     )
 
-    # Pass the created text id to update text progressively in boot sequence
     run_boot_sequence(boot_root, boot_canvas, boot_text_id)
 
     boot_root.mainloop()

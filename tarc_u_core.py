@@ -75,7 +75,7 @@ class TARC_U_Core(tk.Tk):
         )
         self.sidebar_title.pack(pady=10)
 
-        # Replace Listbox with Text widget to allow wrapping and clickable commands
+        # Use Text widget for commands to allow wrapping and clicking
         self.commands_text = tk.Text(
             self.sidebar_frame, bg=CONSOLE_BG, fg=CONSOLE_FG,
             font=SMALL_FONT, bd=0, highlightthickness=0, wrap=tk.WORD,
@@ -83,19 +83,52 @@ class TARC_U_Core(tk.Tk):
         )
         self.commands_text.pack(padx=10, pady=2, fill=tk.X)
 
-        # Insert commands with unique tags and bind click event
         self.commands_text.config(state=tk.NORMAL)
         for i, (cmd, desc) in enumerate(COMMANDS):
-            tag_name = f"cmd_{i}"
-            start_index = self.commands_text.index(tk.END)
-            self.commands_text.insert(tk.END, f"{cmd} - {desc}\n\n")
-            end_index = self.commands_text.index(tk.END)
-            self.commands_text.tag_add(tag_name, start_index, end_index)
-            self.commands_text.tag_bind(tag_name, "<Button-1>", self._on_command_click)
-            self.commands_text.tag_bind(tag_name, "<Enter>", lambda e, t=tag_name: self.commands_text.config(cursor="hand2"))
-            self.commands_text.tag_bind(tag_name, "<Leave>", lambda e: self.commands_text.config(cursor="arrow"))
-            self.commands_text.tag_config(tag_name, foreground=ACCENT_COLOR)
+            tag_line = f"cmdline_{i}"
+            tag_cmd = f"cmd_{i}"
+            tag_desc = f"desc_{i}"
+    
+            # Remember start index before insertion
+            start_index = self.commands_text.index("end-1c")
+
+            # The full text line
+            line_text = f"{cmd} - {desc}\n\n"
+            self.commands_text.insert(tk.END, line_text)
+    
+            end_index = self.commands_text.index("end-1c")
+    
+            # Add a tag for the entire line, for click binding
+            self.commands_text.tag_add(tag_line, start_index, end_index)
+            self.commands_text.tag_bind(tag_line, "<Button-1>", self._on_command_click)
+            self.commands_text.tag_bind(tag_line, "<Enter>", lambda e: self.commands_text.config(cursor="hand2"))
+            self.commands_text.tag_bind(tag_line, "<Leave>", lambda e: self.commands_text.config(cursor="arrow"))
+
+            # Compute indices of command and description within the line
+            # line_text example: "start - Start the anomaly remediation module\n\n"
+            # Find position of " - " delimiter
+            delimiter_pos = line_text.find(" - ")
+            if delimiter_pos == -1:
+                delimiter_pos = len(line_text)  # fallback (no description)
+            # command part indices in Text widget
+            cmd_start = start_index
+            # End index of command substring (command length chars after cmd_start)
+            cmd_end = self.commands_text.index(f"{cmd_start}+{delimiter_pos}c")
+
+            # Add tag for command substring with accent color
+            self.commands_text.tag_add(tag_cmd, cmd_start, cmd_end)
+            self.commands_text.tag_config(tag_cmd, foreground=ACCENT_COLOR)
+
+            # Description part indices start after " - " (3 chars)
+            desc_start = self.commands_text.index(f"{cmd_end}+3c")
+            desc_end = end_index
+
+            # Add tag for description substring with lighter/muted color
+            self.commands_text.tag_add(tag_desc, desc_start, desc_end)
+            self.commands_text.tag_config(tag_desc, foreground="#999999")  # Light gray or your choice
+
         self.commands_text.config(state=tk.DISABLED)
+
 
         # Session log label
         self.session_log_label = tk.Label(
@@ -306,7 +339,12 @@ class TARC_U_Core(tk.Tk):
             response = "Shutting down TARC-U. Goodbye."
             self.update_system_message(response)
             play_sound(SOUND_ERROR)
-            self.after(1000, self.destroy)
+    
+            def exit_app():
+                self.destroy()
+                sys.exit()  # Ensures the Python process terminates
+            self.after(1000, exit_app)
+            return
         elif command == "help":
             self._show_help_overlay()
             response = "Help overlay shown. Press Escape or click anywhere to close."
